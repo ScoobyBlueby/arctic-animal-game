@@ -2843,26 +2843,20 @@
         }
 
         // Secret cheat: Press Shift+W to instantly win!
-        document.addEventListener('keydown', function(e) {
-            if (e.shiftKey && e.key.toLowerCase() === 'w') {
+        window.addEventListener('keydown', function(e) {
+            if (e.shiftKey && (e.key === 'w' || e.key === 'W')) {
                 e.preventDefault();
                 secretWin();
             }
-        });
+        }, true);
 
-        // Create a tiny hidden button in the corner (click 5 times to win)
-        const secretBtn = document.createElement('div');
-        secretBtn.style.cssText = 'position:fixed;bottom:5px;right:5px;width:20px;height:20px;opacity:0.01;cursor:default;z-index:9999;';
+        // Visible secret button in bottom-right corner (for testing)
+        var secretBtn = document.createElement('button');
+        secretBtn.textContent = '🏆';
+        secretBtn.style.cssText = 'position:fixed;bottom:10px;right:10px;width:30px;height:30px;font-size:16px;opacity:0.3;cursor:pointer;z-index:9999;border:none;background:transparent;';
+        secretBtn.title = 'Secret Win';
+        secretBtn.onclick = function() { secretWin(); };
         document.body.appendChild(secretBtn);
-        let secretClicks = 0;
-        secretBtn.addEventListener('click', function() {
-            secretClicks++;
-            if (secretClicks >= 5) {
-                secretWin();
-                secretClicks = 0;
-            }
-            setTimeout(function() { secretClicks = 0; }, 2000);
-        });
     </script>
 </body>
 </html>
