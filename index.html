@@ -1557,9 +1557,6 @@
     </style>
 </head>
 <body>
-    <!-- Secret Win Button -->
-    <button onclick="document.getElementById('selection-screen').classList.remove('active');document.getElementById('start-screen').classList.remove('active');document.getElementById('game-screen').classList.remove('active');document.getElementById('end-screen').classList.add('active');document.getElementById('win-content').style.display='block';document.getElementById('cert-animal').textContent='🐻‍❄️';document.getElementById('cert-name').textContent='Champion';document.getElementById('cert-health').textContent='Secret Winner!';document.getElementById('cert-date').textContent='Awarded on '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});" style="position:fixed;bottom:10px;right:10px;z-index:99999;padding:5px 10px;font-size:14px;cursor:pointer;">🏆 Win</button>
-
     <!-- Selection Screen -->
     <div id="selection-screen" class="screen active arctic-bg">
         <div class="aurora"></div>
@@ -1787,45 +1784,6 @@
     </div>
 
     <script>
-        // Secret win function - at the top so it's always available
-        function secretWin() {
-            var selectedAnimal = window.selectedAnimal || 'polar-bear';
-            var petName = window.petName || 'Champion';
-
-            document.getElementById('selection-screen').classList.remove('active');
-            document.getElementById('start-screen').classList.remove('active');
-            document.getElementById('game-screen').classList.remove('active');
-            var choiceModal = document.getElementById('choice-modal');
-            if (choiceModal) choiceModal.classList.remove('active');
-
-            var loseContent = document.getElementById('lose-content');
-            if (loseContent) loseContent.style.display = 'none';
-            var winContent = document.getElementById('win-content');
-            if (winContent) winContent.style.display = 'none';
-
-            document.getElementById('end-screen').classList.add('active');
-
-            if (winContent) winContent.style.display = 'block';
-
-            var certAnimal = document.getElementById('cert-animal');
-            if (certAnimal) certAnimal.textContent = '🐻‍❄️';
-
-            var certName = document.getElementById('cert-name');
-            if (certName) certName.textContent = petName;
-
-            var certHealth = document.getElementById('cert-health');
-            if (certHealth) certHealth.textContent = 'Secret Winner!';
-
-            var today = new Date();
-            var certDate = document.getElementById('cert-date');
-            if (certDate) certDate.textContent = 'Awarded on ' + today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-
-            if (typeof createConfetti === 'function') createConfetti();
-        }
-
-        // Connect button immediately
-        document.getElementById('secret-win-btn').onclick = secretWin;
-
         // Animal data with choices (neutral descriptions) - 4 options each (2 good, 2 bad)
         const animalData = {
             'polar-bear': {
