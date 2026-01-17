@@ -1557,6 +1557,9 @@
     </style>
 </head>
 <body>
+    <!-- Secret Win Button -->
+    <button id="secret-win-btn" style="position:fixed;bottom:10px;right:10px;z-index:99999;padding:5px 10px;font-size:14px;cursor:pointer;">🏆 Win</button>
+
     <!-- Selection Screen -->
     <div id="selection-screen" class="screen active arctic-bg">
         <div class="aurora"></div>
@@ -2850,13 +2853,8 @@
             }
         }, true);
 
-        // Visible secret button in bottom-right corner (for testing)
-        var secretBtn = document.createElement('button');
-        secretBtn.textContent = '🏆';
-        secretBtn.style.cssText = 'position:fixed;bottom:10px;right:10px;width:30px;height:30px;font-size:16px;opacity:0.3;cursor:pointer;z-index:9999;border:none;background:transparent;';
-        secretBtn.title = 'Secret Win';
-        secretBtn.onclick = function() { secretWin(); };
-        document.body.appendChild(secretBtn);
+        // Connect the HTML secret button
+        document.getElementById('secret-win-btn').onclick = function() { secretWin(); };
     </script>
 </body>
 </html>
