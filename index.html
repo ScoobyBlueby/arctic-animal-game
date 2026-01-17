@@ -1,0 +1,2784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arctic Animal Care</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .screen {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Arctic Background Base */
+        .arctic-bg {
+            background: linear-gradient(180deg,
+                #1a3a52 0%,
+                #2d5a7b 15%,
+                #4a90b8 30%,
+                #87CEEB 50%,
+                #b8e4f0 70%,
+                #e8f7fc 85%,
+                #ffffff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Snow Mountains */
+        .mountains {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            pointer-events: none;
+        }
+
+        .mountain {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .mountain-1 {
+            left: -5%;
+            border-width: 0 120px 200px 120px;
+            border-color: transparent transparent #e8eef2 transparent;
+        }
+
+        .mountain-2 {
+            left: 15%;
+            border-width: 0 150px 280px 150px;
+            border-color: transparent transparent #dde8ed transparent;
+        }
+
+        .mountain-3 {
+            left: 55%;
+            border-width: 0 180px 320px 180px;
+            border-color: transparent transparent #e8eef2 transparent;
+        }
+
+        .mountain-4 {
+            right: 5%;
+            border-width: 0 140px 250px 140px;
+            border-color: transparent transparent #d5e3ea transparent;
+        }
+
+        /* Snow caps on mountains */
+        .snow-cap {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .snow-cap-1 {
+            left: calc(-5% + 70px);
+            border-width: 0 50px 60px 50px;
+            border-color: transparent transparent #ffffff transparent;
+            bottom: 140px;
+        }
+
+        .snow-cap-2 {
+            left: calc(15% + 90px);
+            border-width: 0 60px 80px 60px;
+            border-color: transparent transparent #ffffff transparent;
+            bottom: 200px;
+        }
+
+        .snow-cap-3 {
+            left: calc(55% + 110px);
+            border-width: 0 70px 90px 70px;
+            border-color: transparent transparent #ffffff transparent;
+            bottom: 230px;
+        }
+
+        /* Ice/Snow Ground */
+        .ice-ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 15%;
+            background: linear-gradient(180deg, #e0f0f5 0%, #ffffff 100%);
+            border-top: 3px solid #c8e0ea;
+        }
+
+        /* Snowflakes */
+        .snowflake {
+            position: absolute;
+            color: white;
+            font-size: 20px;
+            pointer-events: none;
+            animation: snowfall linear infinite;
+            text-shadow: 0 0 5px rgba(255,255,255,0.8);
+            opacity: 0.8;
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* Aurora effect */
+        .aurora {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(180deg,
+                rgba(100, 200, 150, 0.1) 0%,
+                rgba(100, 150, 200, 0.05) 50%,
+                transparent 100%);
+            animation: aurora-shimmer 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes aurora-shimmer {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Selection Screen */
+        #selection-screen {
+            background: linear-gradient(180deg, #1a3a52 0%, #4a90b8 40%, #87CEEB 70%, #e8f7fc 100%);
+        }
+
+        .title {
+            font-size: clamp(24px, 6vw, 48px);
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(135,206,235,0.5);
+            margin-bottom: 10px;
+            text-align: center;
+            padding: 0 10px;
+            z-index: 10;
+        }
+
+        .subtitle {
+            font-size: clamp(14px, 3vw, 20px);
+            color: #e0f0ff;
+            margin-bottom: 20px;
+            z-index: 10;
+        }
+
+        .animal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 10px;
+            max-width: 600px;
+            width: 90%;
+            z-index: 10;
+        }
+
+        .animal-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 15px 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 4px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100px;
+            backdrop-filter: blur(10px);
+        }
+
+        .animal-card:hover, .animal-card:active {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .animal-card.selected {
+            border-color: #FF6B9D;
+            background: #FFF0F5;
+        }
+
+        .animal-icon {
+            font-size: clamp(36px, 8vw, 50px);
+            margin-bottom: 5px;
+        }
+
+        .animal-name {
+            font-size: clamp(11px, 2.5vw, 14px);
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .name-input-section {
+            margin-top: 20px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .name-input-section label {
+            display: block;
+            font-size: clamp(14px, 3vw, 18px);
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        #pet-name {
+            font-size: clamp(16px, 4vw, 24px);
+            padding: 12px 20px;
+            border: 3px solid #87CEEB;
+            border-radius: 15px;
+            text-align: center;
+            width: 80%;
+            max-width: 300px;
+            font-family: inherit;
+            background: rgba(255,255,255,0.95);
+        }
+
+        #pet-name:focus {
+            outline: none;
+            border-color: #FF6B9D;
+        }
+
+        .start-btn {
+            margin-top: 25px;
+            font-size: clamp(18px, 4vw, 28px);
+            padding: 15px 40px;
+            background: linear-gradient(180deg, #FF8DC7 0%, #FF6B9D 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            box-shadow: 0 6px 0 #D64A7A, 0 8px 15px rgba(0,0,0,0.3);
+            transition: transform 0.1s, box-shadow 0.1s;
+            z-index: 10;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #D64A7A, 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .start-btn:disabled {
+            background: #ccc;
+            box-shadow: 0 4px 0 #999;
+            cursor: not-allowed;
+        }
+
+        /* Game Screen */
+        #game-screen {
+            transition: background 0.5s;
+        }
+
+        .game-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255,255,255,0.95);
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .health-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .health-icon {
+            font-size: 24px;
+        }
+
+        .health-bar-outer {
+            width: 120px;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #999;
+        }
+
+        .health-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.5s, background 0.5s;
+            border-radius: 8px;
+        }
+
+        .health-bar-inner.warning {
+            background: linear-gradient(90deg, #FF9800, #FFC107);
+        }
+
+        .health-bar-inner.danger {
+            background: linear-gradient(90deg, #f44336, #FF5722);
+        }
+
+        .timer-display {
+            font-size: clamp(20px, 5vw, 32px);
+            color: #2E5A88;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* Progress Tracker */
+        .progress-tracker {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: clamp(12px, 3vw, 16px);
+        }
+
+        .progress-item .progress-icon {
+            font-size: 18px;
+        }
+
+        .progress-item .progress-checks {
+            display: flex;
+            gap: 3px;
+        }
+
+        .progress-check {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .progress-check.done {
+            background: #4CAF50;
+            color: white;
+        }
+
+        /* Day Display */
+        .day-display {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: clamp(16px, 4vw, 22px);
+            color: #2E5A88;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 90;
+        }
+
+        .day-number {
+            color: #FF6B9D;
+        }
+
+        /* Day Transition Overlay */
+        .day-transition {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,50,0.9);
+            z-index: 550;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .day-transition.active {
+            display: flex;
+            animation: fade-in 0.5s ease-out;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .day-transition-content {
+            text-align: center;
+            color: white;
+        }
+
+        .day-transition-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .day-transition-text {
+            font-size: clamp(28px, 7vw, 48px);
+            margin-bottom: 10px;
+        }
+
+        .day-transition-subtitle {
+            font-size: clamp(16px, 4vw, 24px);
+            opacity: 0.8;
+        }
+
+        /* Day indicator dots */
+        .day-indicators {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .day-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+
+        .day-dot.completed {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .day-dot.current {
+            background: #FFD700;
+            border-color: #FFD700;
+            animation: pulse-dot 1s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .pet-name-display {
+            font-size: clamp(14px, 3vw, 20px);
+            color: #4A7BA7;
+        }
+
+        /* Animal Area */
+        .animal-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+            padding-top: 70px;
+        }
+
+        .animal-display {
+            font-size: clamp(80px, 25vw, 150px);
+            position: relative;
+            animation: bounce 1s ease-in-out infinite;
+            z-index: 50;
+        }
+
+        .animal-display.use-sprite {
+            font-size: 0;
+            width: 150px;
+            height: 150px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animal-display.sick {
+            animation: shake 0.5s ease-in-out infinite;
+            filter: hue-rotate(80deg) saturate(0.7);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Sprite Animations */
+        /* Sprite sheets are 1264x848, with 4 columns x 4 rows */
+        /* Each sprite is ~316x212, scaled to display at 158x106 */
+        .sprite-container {
+            display: block;
+            background-repeat: no-repeat;
+            margin: 0 auto;
+        }
+
+        /* Arctic Fox Sprite - 1536x1024 sheet, 6 sprites (removed 2 smallest) */
+        /* Scaled to 600x400 */
+        .sprite-fox {
+            width: 128px;
+            height: 147px;
+            background-size: 600px 400px;
+            background-image: url('Sprites/new_fox3_clean.png?v=1');
+            animation: fox-idle 2.5s step-end infinite, fox-breathe 1.5s ease-in-out infinite;
+            background-position: -40px -33px;
+        }
+
+        .sprite-fox.sick {
+            filter: hue-rotate(80deg) saturate(0.7);
+        }
+
+        .sprite-fox.sleeping {
+            background-image: url('Sprites/sleeping_fox_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 147px;
+            height: 100px;
+            animation: none;
+            background-position: -23px -36px;
+        }
+
+        .sprite-fox.happy {
+            background-image: url('Sprites/happy_fox_clean.png?v=1');
+            width: 128px;
+            height: 160px;
+            animation: fox-happy 1.5s step-end infinite, fox-bounce 0.3s ease-in-out infinite;
+        }
+
+        .sprite-fox.sad {
+            background-image: url('Sprites/sad_fox2_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 140px;
+            height: 150px;
+            animation: fox-sad 1s step-end infinite;
+            filter: brightness(0.9);
+        }
+
+        @keyframes fox-happy {
+            0%, 24.9% { background-position: -53px -198px; }
+            25%, 49.9% { background-position: -185px -198px; }
+            50%, 74.9% { background-position: -315px -198px; }
+            75%, 100% { background-position: -455px -198px; }
+        }
+
+        @keyframes fox-sad {
+            0%, 49.9% { background-position: -33px -26px; }
+            50%, 100% { background-position: -175px -26px; }
+        }
+
+        @keyframes fox-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes fox-idle {
+            0%, 16.6% { background-position: -40px -33px; }
+            16.7%, 33.2% { background-position: -171px -33px; }
+            33.3%, 49.9% { background-position: -312px -33px; }
+            50%, 66.5% { background-position: -175px -206px; }
+            66.6%, 83.2% { background-position: -309px -206px; }
+            83.3%, 100% { background-position: -446px -206px; }
+        }
+
+        @keyframes fox-breathe {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.02) translateY(-2px); }
+        }
+
+        /* Snowy Owl Sprite - simple 4-frame sheet */
+        .sprite-owl {
+            width: 150px;
+            height: 195px;
+            background-size: 600px 195px;
+            background-repeat: no-repeat;
+            background-image: url('Sprites/owl.png?v=1');
+            animation: owl-idle 2s step-end infinite, owl-breathe 1.5s ease-in-out infinite;
+            background-position: -8px -19px;
+        }
+
+        .sprite-owl.sick {
+            filter: hue-rotate(80deg) saturate(0.7);
+        }
+
+        .sprite-owl.sleeping {
+            background-image: url('Sprites/owl_sleeping_done.png?v=1');
+            background-size: 600px 379px;
+            width: 150x;
+            height: 195px;
+            animation: none;
+            background-position: -12px -179px;
+        }
+
+        .sprite-owl.happy {
+            background-image: url('Sprites/owl_happy_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 150x;
+            height: 195px;
+            animation: owl-happy 1s step-end infinite, owl-bounce 0.3s ease-in-out infinite;
+            background-position: -100px -90px;
+        }
+
+        .sprite-owl.sad {
+            background-image: url('Sprites/owl_sad_newclean.png?v=1');
+            background-size: 600px 379px;
+            width: 150px;
+            height: 215x;
+            animation: owl-sad 1s step-end infinite;
+            filter: brightness(0.9);
+            background-position: -15px -17px;
+        }
+
+    	@keyframes owl-idle {
+            0%, 24.9% { background-position: -8px -19px; }
+            25%, 35% { background-position: -147.5px -19px; }
+            35.1%, 100% { background-position: -8px -19px; }
+        }
+
+        @keyframes owl-happy {
+            0%, 25% { background-position: -15px 5px; }
+            25.1%, 100% { background-position: -200x 5px; }
+        }
+
+        @keyframes owl-sad {
+            0%, 100% { background-position: -15px 0px; }
+        }
+
+        @keyframes owl-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes owl-breathe {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.02) translateY(-2px); }
+        }
+
+        /* Penguin Sprite */
+        .sprite-penguin {
+            width: 115px;
+            height: 141px;
+            background-size: 600px 400px;
+            background-image: url('Sprites/penguin_idle_clean.png?v=1');
+            animation: penguin-idle 2s step-end infinite, penguin-breathe 1.5s ease-in-out infinite;
+            background-position: -41px -27px;
+        }
+
+        .sprite-penguin.sick {
+            filter: hue-rotate(80deg) saturate(0.7);
+        }
+
+        .sprite-penguin.sleeping {
+            background-image: url('Sprites/penguin_sleeping_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 128px;
+            height: 101px;
+            animation: none;
+            background-position: -35px -38px;
+        }
+
+        .sprite-penguin.happy {
+            background-image: url('Sprites/penguin_happy_clean.png?v=1');
+            width: 120px;
+            animation: penguin-happy 1.5s step-end infinite, penguin-bounce 0.3s ease-in-out infinite;
+        }
+
+        .sprite-penguin.sad {
+            background-image: url('Sprites/penguin_sad_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 105px;
+            height: 144px;
+            animation: penguin-sad 1s step-end infinite;
+            filter: brightness(0.9);
+        }
+
+        @keyframes penguin-idle {
+            0%, 24.9% { background-position: -41px -27px; }
+            25%, 49.9% { background-position: -175px -27px; }
+            50%, 74.9% { background-position: -301px -27px; }
+            75%, 100% { background-position: -441px -27px; }
+        }
+
+        @keyframes penguin-happy {
+            0%, 24.9% { background-position: -33px -27px; }
+            25%, 49.9% { background-position: -167px -27px; }
+            50%, 74.9% { background-position: -301px -27px; }
+            75%, 100% { background-position: -437px -27px; }
+        }
+
+        @keyframes penguin-sad {
+            0%, 49.9% { background-position: -49px -25px; }
+            50%, 100% { background-position: -188px -25px; }
+        }
+
+        @keyframes penguin-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes penguin-breathe {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.02) translateY(-2px); }
+        }
+
+        /* Polar Bear Sprite */
+        .sprite-polarbear {
+            width: 128px;
+            height: 141px;
+            background-size: 600px 400px;
+            background-image: url('Sprites/polarbear_idle_clean.png?v=1');
+            animation: polarbear-idle 2s step-end infinite, polarbear-breathe 1.5s ease-in-out infinite;
+            background-position: -32px -21px;
+        }
+
+        .sprite-polarbear.sick {
+            filter: hue-rotate(80deg) saturate(0.7);
+        }
+
+        .sprite-polarbear.sleeping {
+            background-image: url('Sprites/polarbear_sleeping_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 131px;
+            height: 78px;
+            animation: none;
+            background-position: -27px -51px;
+        }
+
+        .sprite-polarbear.happy {
+            background-image: url('Sprites/polarbear_happy_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 145px;
+            height: 153px;
+            animation: polarbear-happy 1.5s step-end infinite, polarbear-bounce 0.3s ease-in-out infinite;
+        }
+
+        .sprite-polarbear.sad {
+            background-image: url('Sprites/polarbear_sad_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 130px;
+            height: 145px;
+            animation: polarbear-sad 1s step-end infinite;
+            filter: brightness(0.9);
+        }
+
+        @keyframes polarbear-idle {
+            0%, 24.9% { background-position: -32px -21px; }
+            25%, 49.9% { background-position: -174px -21px; }
+            50%, 74.9% { background-position: -312px -21px; }
+            75%, 100% { background-position: -447px -21px; }
+        }
+
+        @keyframes polarbear-happy {
+            0%, 49.9% { background-position: -24px -21px; }
+            50%, 100% { background-position: -170px -21px; }
+        }
+
+        @keyframes polarbear-sad {
+            0%, 49.9% { background-position: -32px -17px; }
+            50%, 100% { background-position: -175px -17px; }
+        }
+
+        @keyframes polarbear-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes polarbear-breathe {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.02) translateY(-2px); }
+        }
+
+        /* Seal Sprite */
+        .sprite-seal {
+            width: 142px;
+            height: 114px;
+            background-size: 600px 400px;
+            background-image: url('Sprites/seal_idle_clean.png?v=1');
+            animation: seal-idle 2s step-end infinite, seal-breathe 1.5s ease-in-out infinite;
+            background-position: -35px -41px;
+        }
+
+        .sprite-seal.sick {
+            filter: hue-rotate(80deg) saturate(0.7);
+        }
+
+        .sprite-seal.sleeping {
+            background-image: url('Sprites/seal.sleeping_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 180px;
+            height: 73px;
+            animation: none;
+            background-position: 13px -56px;
+        }
+
+        .sprite-seal.happy {
+            background-image: url('Sprites/seal.happy_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 170px;
+            height: 128px;
+            animation: seal-happy 1s step-end infinite, seal-bounce 0.3s ease-in-out infinite;
+        }
+
+        .sprite-seal.sad {
+            background-image: url('Sprites/seal.sad_clean.png?v=1');
+            background-size: 600px 400px;
+            width: 125px;
+            height: 118px;
+            animation: seal-sad 1s step-end infinite;
+            filter: brightness(0.9);
+        }
+
+        @keyframes seal-idle {
+            0%, 100% { background-position: -35px -41px; }
+        }
+
+        @keyframes seal-happy {
+            0%, 100% { background-position: 13px -26px; }
+        }
+
+        @keyframes seal-sad {
+            0%, 49.9% { background-position: -316px -28px; }
+            50%, 100% { background-position: -453px -28px; }
+        }
+
+        @keyframes seal-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes seal-breathe {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.02) translateY(-2px); }
+        }
+
+        /* Walrus Sprite - using isolated sprite sheets */
+        .sprite-walrus {
+            width: 120px;
+            height: 130px;
+            background-size: 600px 332px;
+            background-image: url('Sprites/walrus_idle_clean_isolated.png?v=1');
+            animation: walrus-idle 2s step-end infinite, walrus-breathe 1.5s ease-in-out infinite;
+            background-position: -25px -5px;
+        }
+
+        .sprite-walrus.sick {
+            filter: hue-rotate(80deg) saturate(0.7);
+        }
+
+        .sprite-walrus.sleeping {
+            background-image: url('Sprites/walrus_sleeping_clean_isolated.png?v=1');
+            background-size: 600px 389px;
+            width: 150px;
+            height: 194px;
+            animation: none;
+            background-position: 0px -194px;
+        }
+
+        .sprite-walrus.happy {
+            background-image: url('Sprites/walrus_happy_clean_isolated.png?v=1');
+            background-size: 600px 349px;
+            width: 150px;
+            height: 174px;
+            animation: walrus-happy 1s step-end infinite, walrus-bounce 0.3s ease-in-out infinite;
+            background-position: 0px 0px;
+        }
+
+        .sprite-walrus.sad {
+            background-image: url('Sprites/walrus_sad_clean_isolated.png?v=1');
+            background-size: 600px 348px;
+            width: 150px;
+            height: 174px;
+            animation: walrus-sad 1s step-end infinite;
+            filter: brightness(0.9);
+            background-position: 0px 0px;
+        }
+
+        @keyframes walrus-idle {
+            0%, 59.9% { background-position: -25px -5px; }
+            60%, 79.9% { background-position: -181px -5px; }
+            80%, 100% { background-position: -460px -5px; }
+         
+        }
+
+        @keyframes walrus-happy {
+            0%, 100% { background-position: 0px 0px; }
+        }
+
+        @keyframes walrus-sad {
+            0%, 100% { background-position: 0px 0px; }
+        }
+
+        @keyframes walrus-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes walrus-breathe {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.02) translateY(-2px); }
+        }
+
+        /* Floating Feedback */
+        .floating-feedback {
+            position: fixed;
+            font-size: 50px;
+            pointer-events: none;
+            animation: feedback-float 1.2s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes feedback-float {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-120px) scale(1.5); opacity: 0; }
+        }
+
+        /* Care Buttons */
+        .care-buttons {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 12px;
+            padding: 0 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .care-btn {
+            min-width: 85px;
+            min-height: 85px;
+            font-size: clamp(12px, 2.5vw, 16px);
+            padding: 12px 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .care-btn .btn-icon {
+            font-size: clamp(24px, 6vw, 34px);
+        }
+
+        .care-btn.shelter {
+            background: linear-gradient(180deg, #8B7355 0%, #6B5344 100%);
+            box-shadow: 0 5px 0 #4A3728, 0 7px 12px rgba(0,0,0,0.3);
+        }
+
+        .care-btn.water {
+            background: linear-gradient(180deg, #5DADE2 0%, #3498DB 100%);
+            box-shadow: 0 5px 0 #2171A5, 0 7px 12px rgba(0,0,0,0.3);
+        }
+
+        .care-btn.food {
+            background: linear-gradient(180deg, #F5B041 0%, #E67E22 100%);
+            box-shadow: 0 5px 0 #B35A00, 0 7px 12px rgba(0,0,0,0.3);
+        }
+
+        .care-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .care-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 currentColor;
+        }
+
+        /* Choice Modal */
+        .choice-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .choice-modal.active {
+            display: flex;
+        }
+
+        .choice-content {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            animation: modal-pop 0.3s ease-out;
+        }
+
+        @keyframes modal-pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .choice-title {
+            font-size: clamp(18px, 4vw, 24px);
+            color: #2E5A88;
+            margin-bottom: 20px;
+        }
+
+        .choice-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .choice-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            background: #f5f5f5;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-size: clamp(14px, 3vw, 18px);
+        }
+
+        .choice-option:hover {
+            background: #e8f4fc;
+            border-color: #87CEEB;
+            transform: scale(1.02);
+        }
+
+        .choice-option:active {
+            transform: scale(0.98);
+        }
+
+        .choice-option .option-icon {
+            font-size: 32px;
+        }
+
+        .choice-option .option-text {
+            text-align: left;
+            color: #333;
+        }
+
+        /* End Screen */
+        #end-screen {
+            background: linear-gradient(180deg, #1a3a52 0%, #4a90b8 40%, #87CEEB 70%, #e8f7fc 100%);
+        }
+
+        /* Fancy Certificate */
+        .certificate {
+            background: linear-gradient(180deg, #fffef5 0%, #fff9e6 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0;
+            text-align: center;
+            max-width: 95%;
+            width: 550px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Ornate border */
+        .certificate-border {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 4px double #c9a227;
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        .certificate-border::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 2px solid #d4af37;
+            border-radius: 4px;
+        }
+
+        /* Corner decorations */
+        .corner-decoration {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            font-size: 40px;
+            color: #c9a227;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .corner-tl { top: 15px; left: 15px; }
+        .corner-tr { top: 15px; right: 15px; transform: scaleX(-1); }
+        .corner-bl { bottom: 15px; left: 15px; transform: scaleY(-1); }
+        .corner-br { bottom: 15px; right: 15px; transform: scale(-1); }
+
+        .certificate-inner {
+            padding: 40px 30px;
+            position: relative;
+        }
+
+        .certificate-header {
+            font-size: 14px;
+            color: #666;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .certificate-title {
+            font-size: clamp(22px, 5vw, 32px);
+            color: #1a3a52;
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 rgba(201, 162, 39, 0.3);
+        }
+
+        .certificate-subtitle {
+            font-size: clamp(16px, 4vw, 22px);
+            color: #c9a227;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .certificate-animal {
+            font-size: 70px;
+            margin: 10px 0;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .certificate-name {
+            font-size: clamp(26px, 6vw, 38px);
+            color: #2E5A88;
+            margin: 10px 0;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .certificate-message {
+            font-size: clamp(13px, 3vw, 16px);
+            color: #555;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+
+        .certificate-seal {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFD700 0%, #c9a227 50%, #b8860b 100%);
+            border-radius: 50%;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 4px 15px rgba(201, 162, 39, 0.5),
+                        inset 0 2px 10px rgba(255,255,255,0.3);
+            border: 3px solid #b8860b;
+        }
+
+        .certificate-ribbon {
+            position: absolute;
+            top: -5px;
+            right: 30px;
+            width: 50px;
+            height: 70px;
+            background: linear-gradient(180deg, #4169E1 0%, #2E5A88 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .certificate-footer {
+            font-size: 12px;
+            color: #888;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .certificate-date {
+            font-style: italic;
+        }
+
+        /* Health display on certificate */
+        .certificate-health {
+            font-size: clamp(16px, 4vw, 20px);
+            color: #4CAF50;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        /* Lose Screen */
+        .lose-message {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 40px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .lose-animal {
+            font-size: 80px;
+            margin: 15px 0;
+            filter: grayscale(30%);
+            position: relative;
+            display: inline-block;
+        }
+
+        .lose-title {
+            font-size: clamp(18px, 4vw, 24px);
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .lose-encourage {
+            font-size: clamp(14px, 3vw, 18px);
+            color: #4A7BA7;
+            margin-bottom: 20px;
+        }
+
+        .play-again-btn {
+            font-size: clamp(16px, 4vw, 22px);
+            padding: 12px 30px;
+            background: linear-gradient(180deg, #87CEEB 0%, #5DADE2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #3498DB, 0 6px 10px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+            margin-top: 15px;
+        }
+
+        .play-again-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #3498DB;
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            animation: confetti-fall 3s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Sleeping animation */
+        .sleeping {
+            animation: sleep 2s ease-in-out infinite;
+        }
+
+        @keyframes sleep {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(5px) rotate(5deg); }
+        }
+
+        .zzz {
+            position: absolute;
+            top: -20px;
+            right: -10px;
+            font-size: 30px;
+            animation: zzz 1.5s ease-in-out infinite;
+        }
+
+        @keyframes zzz {
+            0%, 100% { opacity: 0.3; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(-10px); }
+        }
+
+        /* Weather Event */
+        .weather-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,30,60,0.85);
+            z-index: 600;
+            align-items: center;
+            justify-content: center;
+            animation: weather-pulse 0.5s ease-in-out infinite;
+        }
+
+        @keyframes weather-pulse {
+            0%, 100% { background: rgba(0,30,60,0.85); }
+            50% { background: rgba(0,50,80,0.85); }
+        }
+
+        .weather-overlay.active {
+            display: flex;
+        }
+
+        .weather-content {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            max-width: 90%;
+            width: 420px;
+            text-align: center;
+            animation: shake-alert 0.5s ease-in-out;
+            border: 4px solid #4aa8d8;
+        }
+
+        .weather-warning {
+            font-size: 18px;
+            color: #4aa8d8;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .weather-icon {
+            font-size: 80px;
+            margin: 10px 0;
+            animation: weather-bounce 0.5s ease-in-out infinite;
+        }
+
+        @keyframes weather-bounce {
+            0%, 100% { transform: scale(1) rotate(-5deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .weather-title {
+            font-size: clamp(20px, 5vw, 28px);
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .weather-question {
+            font-size: clamp(14px, 3vw, 18px);
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* Predator Event */
+        .predator-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 600;
+            align-items: center;
+            justify-content: center;
+            animation: danger-pulse 0.5s ease-in-out infinite;
+        }
+
+        @keyframes danger-pulse {
+            0%, 100% { background: rgba(0,0,0,0.8); }
+            50% { background: rgba(80,0,0,0.8); }
+        }
+
+        .predator-overlay.active {
+            display: flex;
+        }
+
+        .predator-content {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            max-width: 90%;
+            width: 420px;
+            text-align: center;
+            animation: shake-alert 0.5s ease-in-out;
+            border: 4px solid #ff4444;
+        }
+
+        @keyframes shake-alert {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .predator-warning {
+            font-size: 18px;
+            color: #ff4444;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .predator-icon {
+            font-size: 80px;
+            margin: 10px 0;
+            animation: predator-bounce 0.5s ease-in-out infinite;
+        }
+
+        @keyframes predator-bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .predator-title {
+            font-size: clamp(20px, 5vw, 28px);
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .predator-question {
+            font-size: clamp(14px, 3vw, 18px);
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .survival-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .survival-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: #f8f8f8;
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-size: clamp(13px, 3vw, 16px);
+        }
+
+        .survival-option:hover {
+            background: #fff0f0;
+            border-color: #ff9999;
+            transform: scale(1.02);
+        }
+
+        .survival-option .option-icon {
+            font-size: 28px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .care-btn {
+                min-width: 75px;
+                min-height: 75px;
+            }
+            .certificate-inner {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Selection Screen -->
+    <div id="selection-screen" class="screen active arctic-bg">
+        <div class="aurora"></div>
+        <div class="mountains">
+            <div class="mountain mountain-1"></div>
+            <div class="snow-cap snow-cap-1"></div>
+            <div class="mountain mountain-2"></div>
+            <div class="snow-cap snow-cap-2"></div>
+            <div class="mountain mountain-3"></div>
+            <div class="snow-cap snow-cap-3"></div>
+            <div class="mountain mountain-4"></div>
+        </div>
+        <div class="ice-ground"></div>
+
+        <h1 class="title">Arctic Animal Care</h1>
+        <p class="subtitle">Choose your arctic friend!</p>
+
+        <div class="animal-grid">
+            <div class="animal-card" data-animal="polar-bear">
+                <span class="animal-icon">🐻‍❄️</span>
+                <span class="animal-name">Polar Bear</span>
+            </div>
+            <div class="animal-card" data-animal="penguin">
+                <span class="animal-icon">🐧</span>
+                <span class="animal-name">Penguin</span>
+            </div>
+            <div class="animal-card" data-animal="seal">
+                <span class="animal-icon">🦭</span>
+                <span class="animal-name">Seal</span>
+            </div>
+            <div class="animal-card" data-animal="arctic-fox">
+                <span class="animal-icon">🦊</span>
+                <span class="animal-name">Arctic Fox</span>
+            </div>
+            <div class="animal-card" data-animal="snowy-owl">
+                <span class="animal-icon">🦉</span>
+                <span class="animal-name">Snowy Owl</span>
+            </div>
+            <div class="animal-card" data-animal="walrus">
+                <span class="animal-icon">🦦</span>
+                <span class="animal-name">Walrus</span>
+            </div>
+        </div>
+
+        <div class="name-input-section">
+            <label for="pet-name">Name your friend:</label>
+            <input type="text" id="pet-name" placeholder="Enter a name" maxlength="15" autocomplete="off">
+        </div>
+
+        <button class="start-btn" id="start-btn" disabled>Start Caring!</button>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen arctic-bg">
+        <div class="aurora"></div>
+        <div class="mountains">
+            <div class="mountain mountain-1"></div>
+            <div class="snow-cap snow-cap-1"></div>
+            <div class="mountain mountain-2"></div>
+            <div class="snow-cap snow-cap-2"></div>
+            <div class="mountain mountain-3"></div>
+            <div class="snow-cap snow-cap-3"></div>
+            <div class="mountain mountain-4"></div>
+        </div>
+        <div class="ice-ground"></div>
+
+        <div class="game-header">
+            <div class="health-container">
+                <span class="health-icon">❤️</span>
+                <div class="health-bar-outer">
+                    <div class="health-bar-inner" id="health-bar" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="progress-tracker">
+                <div class="progress-item">
+                    <span class="progress-icon">🏠</span>
+                    <div class="progress-checks">
+                        <div class="progress-check" id="shelter-check-0"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <span class="progress-icon">💧</span>
+                    <div class="progress-checks">
+                        <div class="progress-check" id="water-check-0"></div>
+                        <div class="progress-check" id="water-check-1"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <span class="progress-icon">🍽️</span>
+                    <div class="progress-checks">
+                        <div class="progress-check" id="food-check-0"></div>
+                        <div class="progress-check" id="food-check-1"></div>
+                        <div class="progress-check" id="food-check-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="pet-name-display" id="pet-name-display"></div>
+        </div>
+
+        <div class="day-display">
+            Day <span class="day-number" id="current-day">1</span> of 5
+        </div>
+
+        <div class="animal-area">
+            <div class="animal-display" id="animal-display">
+                <span id="game-animal-icon"></span>
+            </div>
+        </div>
+
+        <div class="care-buttons">
+            <button class="care-btn shelter" data-care="shelter">
+                <span class="btn-icon">🏠</span>
+                Shelter
+            </button>
+            <button class="care-btn water" data-care="water">
+                <span class="btn-icon">💧</span>
+                Water
+            </button>
+            <button class="care-btn food" data-care="food">
+                <span class="btn-icon">🍽️</span>
+                Food
+            </button>
+        </div>
+    </div>
+
+    <!-- Choice Modal -->
+    <div class="choice-modal" id="choice-modal">
+        <div class="choice-content">
+            <h3 class="choice-title" id="choice-title">Choose wisely!</h3>
+            <div class="choice-options" id="choice-options"></div>
+        </div>
+    </div>
+
+    <!-- Day Transition Overlay -->
+    <div class="day-transition" id="day-transition">
+        <div class="day-transition-content">
+            <div class="day-transition-icon" id="day-transition-icon">🌙</div>
+            <div class="day-transition-text" id="day-transition-text">Night Falls...</div>
+            <div class="day-transition-subtitle" id="day-transition-subtitle">Get ready for a new day!</div>
+            <div class="day-indicators" id="day-indicators"></div>
+        </div>
+    </div>
+
+    <!-- Weather Event Modal -->
+    <div class="weather-overlay" id="weather-overlay">
+        <div class="weather-content">
+            <div class="weather-warning">Weather Alert!</div>
+            <div class="weather-icon" id="weather-icon"></div>
+            <h3 class="weather-title" id="weather-title">A storm is coming!</h3>
+            <p class="weather-question" id="weather-question">What should you do?</p>
+            <div class="survival-options" id="weather-options"></div>
+        </div>
+    </div>
+
+    <!-- Predator Event Modal -->
+    <div class="predator-overlay" id="predator-overlay">
+        <div class="predator-content">
+            <div class="predator-warning">Danger!</div>
+            <div class="predator-icon" id="predator-icon"></div>
+            <h3 class="predator-title" id="predator-title">A predator is coming!</h3>
+            <p class="predator-question">How will <span id="predator-pet-name"></span> escape?</p>
+            <div class="survival-options" id="survival-options"></div>
+        </div>
+    </div>
+
+    <!-- End Screen -->
+    <div id="end-screen" class="screen arctic-bg">
+        <div class="aurora"></div>
+        <div class="mountains">
+            <div class="mountain mountain-1"></div>
+            <div class="snow-cap snow-cap-1"></div>
+            <div class="mountain mountain-2"></div>
+            <div class="snow-cap snow-cap-2"></div>
+            <div class="mountain mountain-3"></div>
+            <div class="snow-cap snow-cap-3"></div>
+            <div class="mountain mountain-4"></div>
+        </div>
+        <div class="ice-ground"></div>
+
+        <div id="win-content" class="certificate" style="display: none;">
+            <div class="certificate-ribbon"></div>
+            <div class="certificate-border"></div>
+            <div class="corner-decoration corner-tl">❄️</div>
+            <div class="corner-decoration corner-tr">❄️</div>
+            <div class="corner-decoration corner-bl">❄️</div>
+            <div class="corner-decoration corner-br">❄️</div>
+
+            <div class="certificate-inner">
+                <div class="certificate-header">This Certifies That</div>
+                <h2 class="certificate-title">Certificate of Excellence</h2>
+                <div class="certificate-subtitle">in Arctic Animal Care</div>
+
+                <div class="certificate-animal" id="cert-animal"></div>
+                <div class="certificate-name" id="cert-name"></div>
+
+                <p class="certificate-message">
+                    Has been expertly cared for over 5 days in the Arctic wilderness!
+                    Provided with proper shelter, fresh water, and nutritious food every day,
+                    while surviving dangerous predators and harsh weather.
+                </p>
+
+                <div class="certificate-seal">⭐</div>
+
+                <div class="certificate-health" id="cert-health"></div>
+
+                <div class="certificate-footer">
+                    <div class="certificate-date" id="cert-date"></div>
+                    Arctic Animal Care Academy
+                </div>
+            </div>
+
+            <button class="play-again-btn" onclick="location.reload()">Play Again!</button>
+        </div>
+
+        <div id="lose-content" class="lose-message" style="display: none;">
+            <h2 class="lose-title" id="lose-title"></h2>
+            <div class="lose-animal sleeping" id="lose-animal">
+                <span id="lose-animal-icon"></span>
+                <span class="zzz">💤</span>
+            </div>
+            <p class="lose-encourage">Don't worry! Your friend just needs more rest.<br>You can try again and do even better!</p>
+            <button class="play-again-btn" onclick="location.reload()">Try Again!</button>
+        </div>
+    </div>
+
+    <script>
+        // Animal data with choices (neutral descriptions) - 4 options each (2 good, 2 bad)
+        const animalData = {
+            'polar-bear': {
+                icon: '🐻‍❄️',
+                useSprite: true,
+                spriteClass: 'sprite-polarbear',
+                shelter: {
+                    good: [
+                        { icon: '🧊', name: 'Ice Cave', desc: 'A cave made of ice' },
+                        { icon: '❄️', name: 'Snow Den', desc: 'A hole dug in the snow' }
+                    ],
+                    bad: [
+                        { icon: '🏖️', name: 'Beach Hut', desc: 'A sunny tropical shelter', emoji: '🥵' },
+                        { icon: '🌴', name: 'Palm Tree', desc: 'A tall tree with big leaves', emoji: '🥵' }
+                    ]
+                },
+                water: {
+                    good: [
+                        { icon: '💧', name: 'Fresh Water', desc: 'Water from a cold stream' },
+                        { icon: '🌊', name: 'Arctic Ocean', desc: 'Cold salty sea water' }
+                    ],
+                    bad: [
+                        { icon: '🥤', name: 'Soda Pop', desc: 'A sweet fizzy drink', emoji: '🤢' },
+                        { icon: '🧋', name: 'Bubble Tea', desc: 'Sweet tea with chewy balls', emoji: '🤢' }
+                    ]
+                },
+                food: {
+                    good: [
+                        { icon: '🐟', name: 'Arctic Fish', desc: 'Fish from cold waters' },
+                        { icon: '🦭', name: 'Seal Meat', desc: 'Meat from a seal' }
+                    ],
+                    bad: [
+                        { icon: '🍭', name: 'Candy', desc: 'Colorful sweet treats', emoji: '😫' },
+                        { icon: '🍩', name: 'Donuts', desc: 'Round fried pastries', emoji: '😫' }
+                    ]
+                },
+                predators: [
+                    { icon: '🐋', name: 'Orca', surviveOptions: [
+                        { icon: '🧊', name: 'Hide on thick ice', desc: 'Stay on the ice', isGood: true },
+                        { icon: '🏃', name: 'Run inland', desc: 'Run away from water', isGood: true },
+                        { icon: '🌊', name: 'Swim away', desc: 'Jump in the water', isGood: false, emoji: '😱' }
+                    ]},
+                    { icon: '👨‍🦰', name: 'Hunter', surviveOptions: [
+                        { icon: '🧊', name: 'Hide behind ice', desc: 'Duck behind ice blocks', isGood: true },
+                        { icon: '🌊', name: 'Dive in water', desc: 'Swim away quickly', isGood: true },
+                        { icon: '🧍', name: 'Stand still', desc: 'Stay in the open', isGood: false, emoji: '😱' }
+                    ]}
+                ]
+            },
+            'penguin': {
+                icon: '🐧',
+                useSprite: true,
+                spriteClass: 'sprite-penguin',
+                shelter: {
+                    good: [
+                        { icon: '🪨', name: 'Rocky Nest', desc: 'Rocks piled together' },
+                        { icon: '🧊', name: 'Ice Burrow', desc: 'A tunnel in the ice' }
+                    ],
+                    bad: [
+                        { icon: '🏜️', name: 'Desert Tent', desc: 'A tent in hot sand', emoji: '🥵' },
+                        { icon: '🔥', name: 'Campfire', desc: 'A warm crackling fire', emoji: '🥵' }
+                    ]
+                },
+                water: {
+                    good: [
+                        { icon: '🌊', name: 'Ocean Water', desc: 'Salty sea water' },
+                        { icon: '💧', name: 'Melted Snow', desc: 'Water from melted snow' }
+                    ],
+                    bad: [
+                        { icon: '☕', name: 'Hot Cocoa', desc: 'A warm chocolate drink', emoji: '😰' },
+                        { icon: '🍵', name: 'Hot Tea', desc: 'A steaming cup of tea', emoji: '😰' }
+                    ]
+                },
+                food: {
+                    good: [
+                        { icon: '🐟', name: 'Small Fish', desc: 'Little silver fish' },
+                        { icon: '🦐', name: 'Krill', desc: 'Tiny pink shrimp' }
+                    ],
+                    bad: [
+                        { icon: '🍕', name: 'Pizza', desc: 'Cheesy baked food', emoji: '🤮' },
+                        { icon: '🌮', name: 'Tacos', desc: 'Crunchy filled shells', emoji: '🤮' }
+                    ]
+                },
+                predators: [
+                    { icon: '🦭', name: 'Leopard Seal', surviveOptions: [
+                        { icon: '🪨', name: 'Hide in rocks', desc: 'Squeeze between rocks', isGood: true },
+                        { icon: '👥', name: 'Stay with group', desc: 'Huddle with friends', isGood: true },
+                        { icon: '🌊', name: 'Swim alone', desc: 'Swim away by yourself', isGood: false, emoji: '😱' }
+                    ]},
+                    { icon: '🦅', name: 'Skua Bird', surviveOptions: [
+                        { icon: '🧊', name: 'Hide under ice', desc: 'Get under an ice ledge', isGood: true },
+                        { icon: '👥', name: 'Crowd together', desc: 'Group up with others', isGood: true },
+                        { icon: '🥚', name: 'Guard your egg', desc: 'Stay by your egg alone', isGood: false, emoji: '😱' }
+                    ]}
+                ]
+            },
+            'seal': {
+                icon: '🦭',
+                useSprite: true,
+                spriteClass: 'sprite-seal',
+                shelter: {
+                    good: [
+                        { icon: '🧊', name: 'Ice Floe', desc: 'A floating piece of ice' },
+                        { icon: '🪨', name: 'Rocky Beach', desc: 'Rocks by the water' }
+                    ],
+                    bad: [
+                        { icon: '🛁', name: 'Hot Tub', desc: 'A tub of warm bubbling water', emoji: '🥵' },
+                        { icon: '🏠', name: 'House', desc: 'A building with rooms', emoji: '😰' }
+                    ]
+                },
+                water: {
+                    good: [
+                        { icon: '🌊', name: 'Ocean Water', desc: 'Cold sea water' },
+                        { icon: '💧', name: 'Cold Pool', desc: 'A pool of cold water' }
+                    ],
+                    bad: [
+                        { icon: '🧃', name: 'Juice Box', desc: 'Sweet fruit juice', emoji: '😖' },
+                        { icon: '🥛', name: 'Chocolate Milk', desc: 'Sweet brown milk', emoji: '😖' }
+                    ]
+                },
+                food: {
+                    good: [
+                        { icon: '🐟', name: 'Fish', desc: 'Slippery swimming fish' },
+                        { icon: '🦑', name: 'Squid', desc: 'Sea creature with tentacles' }
+                    ],
+                    bad: [
+                        { icon: '🍔', name: 'Hamburger', desc: 'A beef sandwich', emoji: '🤢' },
+                        { icon: '🍟', name: 'French Fries', desc: 'Fried potato sticks', emoji: '🤢' }
+                    ]
+                },
+                predators: [
+                    { icon: '🐻‍❄️', name: 'Polar Bear', surviveOptions: [
+                        { icon: '🌊', name: 'Dive underwater', desc: 'Swim deep down', isGood: true },
+                        { icon: '🕳️', name: 'Hide in ice hole', desc: 'Slip into a breathing hole', isGood: true },
+                        { icon: '🧊', name: 'Stay on ice', desc: 'Stay where you are', isGood: false, emoji: '😱' }
+                    ]},
+                    { icon: '🦈', name: 'Shark', surviveOptions: [
+                        { icon: '🧊', name: 'Climb on ice', desc: 'Get out of the water', isGood: true },
+                        { icon: '🪨', name: 'Hide by rocks', desc: 'Swim to shallow rocks', isGood: true },
+                        { icon: '🌊', name: 'Swim deeper', desc: 'Go into deep water', isGood: false, emoji: '😱' }
+                    ]}
+                ]
+            },
+            'arctic-fox': {
+                icon: '🦊',
+                useSprite: true,
+                spriteClass: 'sprite-fox',
+                shelter: {
+                    good: [
+                        { icon: '🕳️', name: 'Snow Burrow', desc: 'A tunnel under the snow' },
+                        { icon: '🏔️', name: 'Rocky Den', desc: 'A cave in the rocks' }
+                    ],
+                    bad: [
+                        { icon: '🏠', name: 'Glass House', desc: 'A see-through house', emoji: '😨' },
+                        { icon: '⛺', name: 'Open Tent', desc: 'A fabric tent outside', emoji: '😨' }
+                    ]
+                },
+                water: {
+                    good: [
+                        { icon: '❄️', name: 'Snow', desc: 'Fresh white snow to eat' },
+                        { icon: '💧', name: 'Stream Water', desc: 'Water from a stream' }
+                    ],
+                    bad: [
+                        { icon: '☕', name: 'Coffee', desc: 'A brown bitter drink', emoji: '😵' },
+                        { icon: '🍺', name: 'Apple Cider', desc: 'A sweet fruit drink', emoji: '😵' }
+                    ]
+                },
+                food: {
+                    good: [
+                        { icon: '🐭', name: 'Lemmings', desc: 'Small furry rodents' },
+                        { icon: '🫐', name: 'Arctic Berries', desc: 'Small wild berries' }
+                    ],
+                    bad: [
+                        { icon: '🍫', name: 'Chocolate', desc: 'Sweet brown candy', emoji: '☠️' },
+                        { icon: '🍪', name: 'Cookies', desc: 'Sweet baked treats', emoji: '😫' }
+                    ]
+                },
+                predators: [
+                    { icon: '🦅', name: 'Golden Eagle', surviveOptions: [
+                        { icon: '🕳️', name: 'Hide in burrow', desc: 'Run into your den', isGood: true },
+                        { icon: '🪨', name: 'Hide under rocks', desc: 'Squeeze under rocks', isGood: true },
+                        { icon: '🏃', name: 'Run in the open', desc: 'Run across the snow', isGood: false, emoji: '😱' }
+                    ]},
+                    { icon: '🐺', name: 'Wolf', surviveOptions: [
+                        { icon: '🌲', name: 'Climb a tree', desc: 'Scramble up a tree', isGood: true },
+                        { icon: '🕳️', name: 'Dive in den', desc: 'Hide in your burrow', isGood: true },
+                        { icon: '🦊', name: 'Try to fight', desc: 'Stand your ground', isGood: false, emoji: '😱' }
+                    ]}
+                ]
+            },
+            'snowy-owl': {
+                icon: '🦉',
+                useSprite: true,
+                spriteClass: 'sprite-owl',
+                shelter: {
+                    good: [
+                        { icon: '🌲', name: 'Tree Hollow', desc: 'A hole in a tree trunk' },
+                        { icon: '🪨', name: 'Cliff Ledge', desc: 'A rocky ledge up high' }
+                    ],
+                    bad: [
+                        { icon: '🗼', name: 'Metal Cage', desc: 'A cage with bars', emoji: '😢' },
+                        { icon: '📦', name: 'Cardboard Box', desc: 'A paper box on the ground', emoji: '😢' }
+                    ]
+                },
+                water: {
+                    good: [
+                        { icon: '💧', name: 'Pond Water', desc: 'Water from a small pond' },
+                        { icon: '❄️', name: 'Clean Snow', desc: 'Fresh fallen snow' }
+                    ],
+                    bad: [
+                        { icon: '⚡', name: 'Energy Drink', desc: 'A bright colored drink', emoji: '🤪' },
+                        { icon: '🥤', name: 'Slushie', desc: 'A frozen sugary drink', emoji: '🤪' }
+                    ]
+                },
+                food: {
+                    good: [
+                        { icon: '🐭', name: 'Mice', desc: 'Small grey rodents' },
+                        { icon: '🐰', name: 'Lemmings', desc: 'Chubby little rodents' }
+                    ],
+                    bad: [
+                        { icon: '🍟', name: 'French Fries', desc: 'Fried potato sticks', emoji: '🤮' },
+                        { icon: '🍿', name: 'Popcorn', desc: 'Puffy white snack', emoji: '🤮' }
+                    ]
+                },
+                predators: [
+                    { icon: '🦊', name: 'Arctic Fox', surviveOptions: [
+                        { icon: '🌲', name: 'Fly to high tree', desc: 'Fly up to a tall tree', isGood: true },
+                        { icon: '✈️', name: 'Fly away', desc: 'Fly far away quickly', isGood: true },
+                        { icon: '🪺', name: 'Stay in nest', desc: 'Stay where you are', isGood: false, emoji: '😱' }
+                    ]},
+                    { icon: '🦅', name: 'Eagle', surviveOptions: [
+                        { icon: '🌲', name: 'Hide in trees', desc: 'Fly into thick branches', isGood: true },
+                        { icon: '⬇️', name: 'Fly low', desc: 'Fly close to the ground', isGood: true },
+                        { icon: '☁️', name: 'Fly higher', desc: 'Fly up into the sky', isGood: false, emoji: '😱' }
+                    ]}
+                ]
+            },
+            'walrus': {
+                icon: '🦭',
+                useSprite: true,
+                spriteClass: 'sprite-walrus',
+                shelter: {
+                    good: [
+                        { icon: '🪨', name: 'Rocky Shore', desc: 'Big rocks by the sea' },
+                        { icon: '🧊', name: 'Ice Platform', desc: 'A flat piece of ice' }
+                    ],
+                    bad: [
+                        { icon: '🏊', name: 'Chlorine Pool', desc: 'A blue swimming pool', emoji: '😵' },
+                        { icon: '🏖️', name: 'Sandy Beach', desc: 'Hot sand by warm water', emoji: '🥵' }
+                    ]
+                },
+                water: {
+                    good: [
+                        { icon: '🌊', name: 'Ocean Water', desc: 'Deep sea water' },
+                        { icon: '💧', name: 'Cold Water', desc: 'Very cold water' }
+                    ],
+                    bad: [
+                        { icon: '🥛', name: 'Milkshake', desc: 'A thick sweet drink', emoji: '🤢' },
+                        { icon: '🧃', name: 'Fruit Punch', desc: 'Sweet red juice', emoji: '🤢' }
+                    ]
+                },
+                food: {
+                    good: [
+                        { icon: '🐚', name: 'Clams', desc: 'Shellfish from the sea floor' },
+                        { icon: '🦪', name: 'Mussels', desc: 'Black shelled seafood' }
+                    ],
+                    bad: [
+                        { icon: '🌭', name: 'Hot Dog', desc: 'A sausage in bread', emoji: '😫' },
+                        { icon: '🍕', name: 'Pizza', desc: 'Flat bread with toppings', emoji: '😫' }
+                    ]
+                },
+                predators: [
+                    { icon: '🐻‍❄️', name: 'Polar Bear', surviveOptions: [
+                        { icon: '🌊', name: 'Escape to water', desc: 'Slide into the ocean', isGood: true },
+                        { icon: '👥', name: 'Group together', desc: 'Stay with other walruses', isGood: true },
+                        { icon: '😴', name: 'Keep sleeping', desc: 'Ignore and keep resting', isGood: false, emoji: '😱' }
+                    ]},
+                    { icon: '🐋', name: 'Orca', surviveOptions: [
+                        { icon: '🧊', name: 'Get on ice', desc: 'Climb onto the ice', isGood: true },
+                        { icon: '🪨', name: 'Hide by rocks', desc: 'Stay near the rocky shore', isGood: true },
+                        { icon: '🌊', name: 'Swim away', desc: 'Swim into deep water', isGood: false, emoji: '😱' }
+                    ]}
+                ]
+            }
+        };
+
+        // Game state
+        let selectedAnimal = null;
+        let petName = '';
+        let health = 100;
+        let currentChoice = null;
+        let currentDay = 1;
+        const totalDays = 5;
+
+        // Daily progress tracking (resets each day)
+        let dailyProgress = {
+            shelter: 0,
+            water: 0,
+            food: 0
+        };
+        const dailyGoals = {
+            shelter: 1,
+            water: 2,
+            food: 3
+        };
+
+        // Predator tracking (random but at least every other day, max one per day)
+        let lastPredatorDay = 0;
+        let predatorTriggeredToday = false;
+        let predatorsEncountered = 0;
+
+        // Weather event tracking
+        let weatherEventTriggered = false;
+        let weatherEventsEncountered = 0;
+
+        // Weather events data (realistic animal survival behaviors)
+        const weatherEvents = [
+            {
+                icon: '🌨️',
+                name: 'Blizzard',
+                question: 'A fierce snowstorm is here! How should your animal survive?',
+                options: [
+                    { icon: '🕳️', name: 'Dig into snow', desc: 'Burrow under snow for warmth', isGood: true },
+                    { icon: '🧊', name: 'Find a snow drift', desc: 'Use deep snow as shelter', isGood: true },
+                    { icon: '🏃', name: 'Run through it', desc: 'Try to find another place', isGood: false, emoji: '🥶' }
+                ]
+            },
+            {
+                icon: '❄️',
+                name: 'Thin Ice',
+                question: 'The ice is cracking! How should your animal stay safe?',
+                options: [
+                    { icon: '⬇️', name: 'Lie flat', desc: 'Spread body weight on the ice', isGood: true },
+                    { icon: '🐌', name: 'Move slowly', desc: 'Slide carefully toward land', isGood: true },
+                    { icon: '🦘', name: 'Jump and run', desc: 'Leap to safety quickly', isGood: false, emoji: '💦' }
+                ]
+            },
+            {
+                icon: '🌬️',
+                name: 'Polar Winds',
+                question: 'Freezing winds are blowing! How should your animal stay warm?',
+                options: [
+                    { icon: '🪨', name: 'Find a windbreak', desc: 'Get behind rocks or ice', isGood: true },
+                    { icon: '⭕', name: 'Curl into a ball', desc: 'Tuck in to save body heat', isGood: true },
+                    { icon: '🧍', name: 'Stand tall', desc: 'Face into the wind', isGood: false, emoji: '🥶' }
+                ]
+            },
+            {
+                icon: '🌊',
+                name: 'Breaking Ice Shelf',
+                question: 'The ice is breaking apart! How should your animal escape?',
+                options: [
+                    { icon: '🏊', name: 'Swim to land', desc: 'Swim to solid shore', isGood: true },
+                    { icon: '🧊', name: 'Jump to stable ice', desc: 'Hop to a bigger ice chunk', isGood: true },
+                    { icon: '🧍', name: 'Wait for help', desc: 'Stay and hope it stops', isGood: false, emoji: '😰' }
+                ]
+            }
+        ];
+
+        // Audio context
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            gainNode.gain.value = 0.3;
+
+            switch(type) {
+                case 'good':
+                    oscillator.frequency.value = 523.25;
+                    oscillator.type = 'sine';
+                    setTimeout(() => {
+                        const osc2 = audioCtx.createOscillator();
+                        const gain2 = audioCtx.createGain();
+                        osc2.connect(gain2);
+                        gain2.connect(audioCtx.destination);
+                        osc2.frequency.value = 659.25;
+                        osc2.type = 'sine';
+                        gain2.gain.value = 0.3;
+                        gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                        osc2.start();
+                        osc2.stop(audioCtx.currentTime + 0.2);
+                    }, 100);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.2);
+                    break;
+
+                case 'bad':
+                    oscillator.frequency.value = 200;
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                    gainNode.gain.value = 0.2;
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.4);
+                    break;
+
+                case 'click':
+                    oscillator.frequency.value = 400;
+                    oscillator.type = 'sine';
+                    gainNode.gain.value = 0.1;
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.1);
+                    break;
+
+                case 'win':
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, i) => {
+                        setTimeout(() => {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.frequency.value = freq;
+                            osc.type = 'sine';
+                            gain.gain.value = 0.3;
+                            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                            osc.start();
+                            osc.stop(audioCtx.currentTime + 0.3);
+                        }, i * 150);
+                    });
+                    return;
+            }
+        }
+
+        // Create snowflakes
+        function createSnowflakes(container) {
+            const snowflakes = ['❄', '❅', '❆', '•'];
+            for (let i = 0; i < 30; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                flake.style.left = `${Math.random() * 100}%`;
+                flake.style.fontSize = `${10 + Math.random() * 15}px`;
+                flake.style.animationDuration = `${5 + Math.random() * 10}s`;
+                flake.style.animationDelay = `${Math.random() * 5}s`;
+                flake.style.opacity = 0.4 + Math.random() * 0.4;
+                container.appendChild(flake);
+            }
+        }
+
+        // Initialize snowflakes on all screens
+        document.querySelectorAll('.arctic-bg').forEach(screen => {
+            createSnowflakes(screen);
+        });
+
+        // Selection screen logic
+        const animalCards = document.querySelectorAll('.animal-card');
+        const petNameInput = document.getElementById('pet-name');
+        const startBtn = document.getElementById('start-btn');
+
+        animalCards.forEach(card => {
+            card.addEventListener('click', () => {
+                initAudio();
+                playSound('click');
+                animalCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedAnimal = card.dataset.animal;
+                updateStartButton();
+            });
+        });
+
+        petNameInput.addEventListener('input', () => {
+            petName = petNameInput.value.trim();
+            updateStartButton();
+        });
+
+        function updateStartButton() {
+            startBtn.disabled = !(selectedAnimal && petName.length > 0);
+        }
+
+        startBtn.addEventListener('click', startGame);
+
+        function startGame() {
+            initAudio();
+            playSound('click');
+
+            document.getElementById('selection-screen').classList.remove('active');
+            const gameScreen = document.getElementById('game-screen');
+            gameScreen.classList.add('active');
+
+            const animal = animalData[selectedAnimal];
+            const animalDisplay = document.getElementById('animal-display');
+            const animalIcon = document.getElementById('game-animal-icon');
+
+            // Check if this animal uses a sprite
+            if (animal.useSprite) {
+                animalDisplay.classList.add('use-sprite');
+                animalIcon.textContent = '';
+                animalIcon.className = 'sprite-container ' + animal.spriteClass;
+            } else {
+                animalDisplay.classList.remove('use-sprite');
+                animalIcon.className = '';
+                animalIcon.textContent = animal.icon;
+            }
+
+            document.getElementById('pet-name-display').textContent = petName;
+
+            // Reset game state
+            currentDay = 1;
+            health = 100;
+            dailyProgress = { shelter: 0, water: 0, food: 0 };
+            lastPredatorDay = 0;
+            predatorTriggeredToday = false;
+            predatorsEncountered = 0;
+            weatherEventTriggered = false;
+            weatherEventsEncountered = 0;
+
+            updateDayDisplay();
+            updateProgressDisplay();
+            updateHealth(0);
+        }
+
+        function updateProgressDisplay() {
+            // Update shelter checks
+            for (let i = 0; i < dailyGoals.shelter; i++) {
+                const check = document.getElementById(`shelter-check-${i}`);
+                if (check) {
+                    check.classList.toggle('done', i < dailyProgress.shelter);
+                    check.textContent = i < dailyProgress.shelter ? '✓' : '';
+                }
+            }
+            // Update water checks
+            for (let i = 0; i < dailyGoals.water; i++) {
+                const check = document.getElementById(`water-check-${i}`);
+                if (check) {
+                    check.classList.toggle('done', i < dailyProgress.water);
+                    check.textContent = i < dailyProgress.water ? '✓' : '';
+                }
+            }
+            // Update food checks
+            for (let i = 0; i < dailyGoals.food; i++) {
+                const check = document.getElementById(`food-check-${i}`);
+                if (check) {
+                    check.classList.toggle('done', i < dailyProgress.food);
+                    check.textContent = i < dailyProgress.food ? '✓' : '';
+                }
+            }
+        }
+
+        function updateDayDisplay() {
+            document.getElementById('current-day').textContent = currentDay;
+        }
+
+        function checkDayComplete() {
+            return dailyProgress.shelter >= dailyGoals.shelter &&
+                   dailyProgress.water >= dailyGoals.water &&
+                   dailyProgress.food >= dailyGoals.food;
+        }
+
+        function shouldTriggerPredator() {
+            // Already had predator today
+            if (predatorTriggeredToday) return false;
+
+            // Must have predator if it's been 2+ days since last one
+            const daysSinceLastPredator = currentDay - lastPredatorDay;
+            if (daysSinceLastPredator >= 2) return true;
+
+            // Random chance (10%) otherwise
+            return Math.random() < 0.10;
+        }
+
+        function tryRandomPredator() {
+            if (shouldTriggerPredator()) {
+                predatorTriggeredToday = true;
+                lastPredatorDay = currentDay;
+                const predatorIndex = predatorsEncountered % 2;
+                predatorsEncountered++;
+                setTimeout(() => triggerPredatorEvent(predatorIndex), 600);
+                return true;
+            }
+            return false;
+        }
+
+        function completeDayAndCheckHealth() {
+            // Check if health is near full (>= 70%)
+            if (health < 70) {
+                // Game over - health too low
+                setTimeout(() => endGame(false, 'health'), 500);
+                return;
+            }
+
+            // Day complete! Move to next day or win
+            if (currentDay >= totalDays) {
+                // Won the game!
+                setTimeout(() => endGame(true), 500);
+            } else {
+                // Transition to next day
+                showDayTransition();
+            }
+        }
+
+        function showDayTransition() {
+            const overlay = document.getElementById('day-transition');
+            const icon = document.getElementById('day-transition-icon');
+            const text = document.getElementById('day-transition-text');
+            const subtitle = document.getElementById('day-transition-subtitle');
+            const indicators = document.getElementById('day-indicators');
+
+            icon.textContent = '🌙';
+            text.textContent = `Day ${currentDay} Complete!`;
+            subtitle.textContent = `${petName} made it through the day!`;
+
+            // Build day indicators
+            indicators.innerHTML = '';
+            for (let i = 1; i <= totalDays; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'day-dot';
+                if (i < currentDay + 1) dot.classList.add('completed');
+                if (i === currentDay + 1) dot.classList.add('current');
+                indicators.appendChild(dot);
+            }
+
+            overlay.classList.add('active');
+            playSound('good');
+
+            // Auto-advance after delay
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                startNewDay();
+            }, 2500);
+        }
+
+        function startNewDay() {
+            currentDay++;
+            dailyProgress = { shelter: 0, water: 0, food: 0 };
+            predatorTriggeredToday = false;
+            weatherEventTriggered = false;
+
+            // Partial health recovery overnight
+            updateHealth(15);
+
+            updateDayDisplay();
+            updateProgressDisplay();
+
+            // Show sunrise message
+            const overlay = document.getElementById('day-transition');
+            const icon = document.getElementById('day-transition-icon');
+            const text = document.getElementById('day-transition-text');
+            const subtitle = document.getElementById('day-transition-subtitle');
+
+            icon.textContent = '🌅';
+            text.textContent = `Day ${currentDay}`;
+            subtitle.textContent = 'Take care of your animal!';
+
+            overlay.classList.add('active');
+
+            setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 1500);
+        }
+
+        function updateHealth(change) {
+            health = Math.max(0, Math.min(100, health + change));
+            const healthBar = document.getElementById('health-bar');
+            healthBar.style.width = `${health}%`;
+
+            healthBar.classList.remove('warning', 'danger');
+            if (health <= 25) {
+                healthBar.classList.add('danger');
+            } else if (health <= 50) {
+                healthBar.classList.add('warning');
+            }
+
+            // Check for sick state
+            const animalDisplay = document.getElementById('animal-display');
+            const animalIcon = document.getElementById('game-animal-icon');
+            if (health <= 25) {
+                animalDisplay.classList.add('sick');
+                animalIcon.classList.add('sick');
+            } else {
+                animalDisplay.classList.remove('sick');
+                animalIcon.classList.remove('sick');
+            }
+        }
+
+        // Care buttons - open choice modal
+        document.querySelectorAll('.care-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                openChoiceModal(btn.dataset.care);
+            });
+        });
+
+        function openChoiceModal(careType) {
+            currentChoice = careType;
+            const animal = animalData[selectedAnimal];
+            const choices = animal[careType];
+
+            const titles = {
+                shelter: `Choose shelter for ${petName}:`,
+                water: `Choose water for ${petName}:`,
+                food: `Choose food for ${petName}:`
+            };
+
+            document.getElementById('choice-title').textContent = titles[careType];
+
+            const optionsContainer = document.getElementById('choice-options');
+            optionsContainer.innerHTML = '';
+
+            // Shuffle good and bad options together (2 good + 2 bad = 4 choices)
+            const allOptions = [
+                ...choices.good.map(opt => ({ ...opt, isGood: true })),
+                ...choices.bad.map(opt => ({ ...opt, isGood: false }))
+            ];
+
+            // Shuffle array
+            for (let i = allOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+            }
+
+            allOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-option';
+                btn.innerHTML = `
+                    <span class="option-icon">${option.icon}</span>
+                    <span class="option-text">
+                        <strong>${option.name}</strong><br>
+                        <small>${option.desc}</small>
+                    </span>
+                `;
+                btn.addEventListener('click', () => selectChoice(option));
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('choice-modal').classList.add('active');
+        }
+
+        function selectChoice(option) {
+            document.getElementById('choice-modal').classList.remove('active');
+            const animalIcon = document.getElementById('game-animal-icon');
+
+            if (option.isGood) {
+                playSound('good');
+                updateHealth(10);
+                createFloatingFeedback('❤️');
+                createFloatingFeedback('💕');
+
+                // Show happy pose briefly
+                animalIcon.classList.add('happy');
+                setTimeout(() => animalIcon.classList.remove('happy'), 1500);
+
+                // Track daily progress for good choices
+                if (dailyProgress[currentChoice] < dailyGoals[currentChoice]) {
+                    dailyProgress[currentChoice]++;
+                    updateProgressDisplay();
+                }
+
+                // Random chance for predator or weather event to appear mid-day
+                // Weather and predator events don't occur on the same day
+                if (tryRandomPredator()) {
+                    return; // Predator event will handle continuation
+                }
+                if (!predatorTriggeredToday && tryRandomWeatherEvent()) {
+                    return; // Weather event will handle continuation
+                }
+
+                // Check if day's goals are complete
+                if (checkDayComplete()) {
+                    completeDayAndCheckHealth();
+                }
+            } else {
+                playSound('bad');
+                updateHealth(-25);
+                createFloatingFeedback(option.emoji);
+
+                // Show sad pose briefly
+                animalIcon.classList.add('sad');
+                setTimeout(() => animalIcon.classList.remove('sad'), 1500);
+
+                // Check if health depleted
+                if (health <= 0) {
+                    setTimeout(() => endGame(false, 'health'), 500);
+                }
+            }
+        }
+
+        function triggerPredatorEvent(predatorIndex) {
+            const animal = animalData[selectedAnimal];
+            const predator = animal.predators[predatorIndex];
+
+            playSound('bad');
+
+            document.getElementById('predator-icon').textContent = predator.icon;
+            document.getElementById('predator-title').textContent = `A ${predator.name} is coming!`;
+            document.getElementById('predator-pet-name').textContent = petName;
+
+            const optionsContainer = document.getElementById('survival-options');
+            optionsContainer.innerHTML = '';
+
+            // Shuffle survival options
+            const shuffledOptions = [...predator.surviveOptions];
+            for (let i = shuffledOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+            }
+
+            shuffledOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'survival-option';
+                btn.innerHTML = `
+                    <span class="option-icon">${option.icon}</span>
+                    <span class="option-text">
+                        <strong>${option.name}</strong><br>
+                        <small>${option.desc}</small>
+                    </span>
+                `;
+                btn.addEventListener('click', () => handleSurvivalChoice(option));
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('predator-overlay').classList.add('active');
+        }
+
+        function handleSurvivalChoice(option) {
+            document.getElementById('predator-overlay').classList.remove('active');
+
+            if (option.isGood) {
+                playSound('good');
+                createFloatingFeedback('😅');
+                createFloatingFeedback('💨');
+                // Small health bonus for escaping
+                updateHealth(5);
+
+                // Check if day was already complete when predator appeared
+                if (checkDayComplete()) {
+                    completeDayAndCheckHealth();
+                }
+                // Otherwise, continue with remaining care tasks
+            } else {
+                playSound('bad');
+                createFloatingFeedback(option.emoji);
+                createFloatingFeedback('💔');
+
+                // Failed predator encounter - game over
+                setTimeout(() => endGame(false, 'predator'), 500);
+            }
+        }
+
+        // Weather event functions
+        function shouldTriggerWeatherEvent() {
+            // Only one weather event per day, and not if predator triggered today
+            if (weatherEventTriggered || predatorTriggeredToday) return false;
+
+            // Random chance (20%)
+            return Math.random() < 0.20;
+        }
+
+        function tryRandomWeatherEvent() {
+            if (shouldTriggerWeatherEvent()) {
+                weatherEventTriggered = true;
+                weatherEventsEncountered++;
+                setTimeout(() => triggerWeatherEvent(), 600);
+                return true;
+            }
+            return false;
+        }
+
+        function triggerWeatherEvent() {
+            // Pick a random weather event
+            const event = weatherEvents[Math.floor(Math.random() * weatherEvents.length)];
+
+            playSound('bad');
+
+            document.getElementById('weather-icon').textContent = event.icon;
+            document.getElementById('weather-title').textContent = event.name + '!';
+            document.getElementById('weather-question').textContent = event.question;
+
+            const optionsContainer = document.getElementById('weather-options');
+            optionsContainer.innerHTML = '';
+
+            // Shuffle options
+            const shuffledOptions = [...event.options];
+            for (let i = shuffledOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+            }
+
+            shuffledOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'survival-option';
+                btn.innerHTML = `
+                    <span class="option-icon">${option.icon}</span>
+                    <span class="option-text">
+                        <strong>${option.name}</strong><br>
+                        <small>${option.desc}</small>
+                    </span>
+                `;
+                btn.addEventListener('click', () => handleWeatherChoice(option));
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('weather-overlay').classList.add('active');
+        }
+
+        function handleWeatherChoice(option) {
+            document.getElementById('weather-overlay').classList.remove('active');
+
+            if (option.isGood) {
+                playSound('good');
+                createFloatingFeedback('😅');
+                createFloatingFeedback('🌟');
+                // Small health bonus for surviving
+                updateHealth(5);
+
+                // Check if day was already complete
+                if (checkDayComplete()) {
+                    completeDayAndCheckHealth();
+                }
+            } else {
+                playSound('bad');
+                createFloatingFeedback(option.emoji);
+                createFloatingFeedback('💔');
+
+                // Failed weather event - game over
+                setTimeout(() => endGame(false, 'weather'), 500);
+            }
+        }
+
+        function createFloatingFeedback(emoji) {
+            const feedback = document.createElement('div');
+            feedback.className = 'floating-feedback';
+            feedback.textContent = emoji;
+            feedback.style.left = `${35 + Math.random() * 30}%`;
+            feedback.style.top = '45%';
+            document.body.appendChild(feedback);
+
+            setTimeout(() => feedback.remove(), 1200);
+        }
+
+        function endGame(won, reason = '') {
+            document.getElementById('game-screen').classList.remove('active');
+            document.getElementById('end-screen').classList.add('active');
+
+            const animal = animalData[selectedAnimal];
+
+            if (won) {
+                // Win!
+                document.getElementById('win-content').style.display = 'block';
+                const certAnimal = document.getElementById('cert-animal');
+                if (animal.useSprite) {
+                    certAnimal.textContent = '';
+                    certAnimal.innerHTML = '<div class="sprite-container ' + animal.spriteClass + '" style="margin: 0 auto;"></div>';
+                } else {
+                    certAnimal.textContent = animal.icon;
+                }
+                document.getElementById('cert-name').textContent = petName;
+                document.getElementById('cert-health').textContent = `Survived all 5 days!`;
+
+                const today = new Date();
+                document.getElementById('cert-date').textContent =
+                    `Awarded on ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+
+                playSound('win');
+                createConfetti();
+            } else {
+                // Lose
+                document.getElementById('lose-content').style.display = 'block';
+                const loseIcon = document.getElementById('lose-animal-icon');
+                if (animal.useSprite) {
+                    loseIcon.textContent = '';
+                    loseIcon.className = 'sprite-container ' + animal.spriteClass + ' sleeping';
+                    loseIcon.style.display = 'inline-block';
+                } else {
+                    loseIcon.textContent = animal.icon;
+                    loseIcon.className = '';
+                }
+
+                let loseMessage = '';
+                if (reason === 'predator') {
+                    loseMessage = `${petName} couldn't escape the predator`;
+                } else if (reason === 'weather') {
+                    loseMessage = `${petName} couldn't survive the weather`;
+                } else if (reason === 'health') {
+                    loseMessage = `${petName} got too tired on Day ${currentDay}`;
+                } else {
+                    loseMessage = `${petName} needs more rest`;
+                }
+                document.getElementById('lose-title').textContent = loseMessage;
+            }
+        }
+
+        function createConfetti() {
+            const colors = ['#FF6B9D', '#FFD700', '#87CEEB', '#98FB98', '#DDA0DD', '#F0E68C'];
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = `${2 + Math.random() * 2}s`;
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 40);
+            }
+        }
+
+        // Close modal if clicking outside
+        document.getElementById('choice-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'choice-modal') {
+                document.getElementById('choice-modal').classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
