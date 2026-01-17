@@ -1558,7 +1558,7 @@
 </head>
 <body>
     <!-- Secret Win Button -->
-    <button id="secret-win-btn" style="position:fixed;bottom:10px;right:10px;z-index:99999;padding:5px 10px;font-size:14px;cursor:pointer;">🏆 Win</button>
+    <button onclick="document.getElementById('selection-screen').classList.remove('active');document.getElementById('start-screen').classList.remove('active');document.getElementById('game-screen').classList.remove('active');document.getElementById('end-screen').classList.add('active');document.getElementById('win-content').style.display='block';document.getElementById('cert-animal').textContent='🐻‍❄️';document.getElementById('cert-name').textContent='Champion';document.getElementById('cert-health').textContent='Secret Winner!';document.getElementById('cert-date').textContent='Awarded on '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});" style="position:fixed;bottom:10px;right:10px;z-index:99999;padding:5px 10px;font-size:14px;cursor:pointer;">🏆 Win</button>
 
     <!-- Selection Screen -->
     <div id="selection-screen" class="screen active arctic-bg">
