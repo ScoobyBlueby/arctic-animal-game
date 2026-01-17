@@ -1787,6 +1787,45 @@
     </div>
 
     <script>
+        // Secret win function - at the top so it's always available
+        function secretWin() {
+            var selectedAnimal = window.selectedAnimal || 'polar-bear';
+            var petName = window.petName || 'Champion';
+
+            document.getElementById('selection-screen').classList.remove('active');
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.remove('active');
+            var choiceModal = document.getElementById('choice-modal');
+            if (choiceModal) choiceModal.classList.remove('active');
+
+            var loseContent = document.getElementById('lose-content');
+            if (loseContent) loseContent.style.display = 'none';
+            var winContent = document.getElementById('win-content');
+            if (winContent) winContent.style.display = 'none';
+
+            document.getElementById('end-screen').classList.add('active');
+
+            if (winContent) winContent.style.display = 'block';
+
+            var certAnimal = document.getElementById('cert-animal');
+            if (certAnimal) certAnimal.textContent = '🐻‍❄️';
+
+            var certName = document.getElementById('cert-name');
+            if (certName) certName.textContent = petName;
+
+            var certHealth = document.getElementById('cert-health');
+            if (certHealth) certHealth.textContent = 'Secret Winner!';
+
+            var today = new Date();
+            var certDate = document.getElementById('cert-date');
+            if (certDate) certDate.textContent = 'Awarded on ' + today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+            if (typeof createConfetti === 'function') createConfetti();
+        }
+
+        // Connect button immediately
+        document.getElementById('secret-win-btn').onclick = secretWin;
+
         // Animal data with choices (neutral descriptions) - 4 options each (2 good, 2 bad)
         const animalData = {
             'polar-bear': {
@@ -2804,57 +2843,6 @@
             }
         });
 
-        // Secret win function
-        function secretWin() {
-            // Set defaults if game hasn't started
-            if (!selectedAnimal) {
-                selectedAnimal = 'polar-bear';
-            }
-            if (!petName) {
-                petName = 'Champion';
-            }
-
-            // Hide all screens
-            document.getElementById('start-screen').classList.remove('active');
-            document.getElementById('game-screen').classList.remove('active');
-            document.getElementById('choice-modal').classList.remove('active');
-            document.getElementById('lose-content').style.display = 'none';
-            document.getElementById('win-content').style.display = 'none';
-
-            // Show end screen and trigger win
-            document.getElementById('end-screen').classList.add('active');
-
-            // Display certificate
-            const animal = animalData[selectedAnimal];
-            document.getElementById('win-content').style.display = 'block';
-            const certAnimal = document.getElementById('cert-animal');
-            if (animal.useSprite) {
-                certAnimal.textContent = '';
-                certAnimal.innerHTML = '<div class="sprite-container ' + animal.spriteClass + '" style="margin: 0 auto;"></div>';
-            } else {
-                certAnimal.textContent = animal.icon;
-            }
-            document.getElementById('cert-name').textContent = petName;
-            document.getElementById('cert-health').textContent = 'Secret Winner!';
-
-            const today = new Date();
-            document.getElementById('cert-date').textContent =
-                'Awarded on ' + today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-
-            playSound('win');
-            createConfetti();
-        }
-
-        // Secret cheat: Press Shift+W to instantly win!
-        window.addEventListener('keydown', function(e) {
-            if (e.shiftKey && (e.key === 'w' || e.key === 'W')) {
-                e.preventDefault();
-                secretWin();
-            }
-        }, true);
-
-        // Connect the HTML secret button
-        document.getElementById('secret-win-btn').onclick = function() { secretWin(); };
     </script>
 </body>
 </html>
