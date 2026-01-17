@@ -1257,6 +1257,26 @@
             font-style: italic;
         }
 
+        .certificate-signature {
+            font-family: 'Brush Script MT', 'Segoe Script', 'Bradley Hand', cursive;
+            font-size: clamp(32px, 8vw, 48px);
+            color: #1a3a5c;
+            margin: 15px 0 5px 0;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+            transform: rotate(-2deg);
+            display: inline-block;
+        }
+
+        .certificate-signature::after {
+            content: '';
+            display: block;
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #1a3a5c, transparent);
+            margin: 5px auto 0;
+        }
+
         /* Health display on certificate */
         .certificate-health {
             font-size: clamp(16px, 4vw, 20px);
@@ -1743,6 +1763,7 @@
                 <div class="certificate-health" id="cert-health"></div>
 
                 <div class="certificate-footer">
+                    <div class="certificate-signature">R&G</div>
                     <div class="certificate-date" id="cert-date"></div>
                     Arctic Animal Care Academy
                 </div>
@@ -2777,6 +2798,35 @@
         document.getElementById('choice-modal').addEventListener('click', (e) => {
             if (e.target.id === 'choice-modal') {
                 document.getElementById('choice-modal').classList.remove('active');
+            }
+        });
+
+        // Secret cheat code: Type "rg" to instantly win!
+        let cheatBuffer = '';
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger if typing in an input field
+            if (e.target.tagName === 'INPUT') return;
+
+            cheatBuffer += e.key.toLowerCase();
+            cheatBuffer = cheatBuffer.slice(-2); // Keep last 2 characters
+
+            if (cheatBuffer === 'rg') {
+                // Set defaults if game hasn't started
+                if (!selectedAnimal) {
+                    selectedAnimal = 'polar-bear';
+                }
+                if (!petName) {
+                    petName = 'Champion';
+                }
+
+                // Hide all screens and show end screen with win
+                document.getElementById('start-screen').classList.remove('active');
+                document.getElementById('game-screen').classList.remove('active');
+                document.getElementById('choice-modal').classList.remove('active');
+                document.getElementById('lose-content').style.display = 'none';
+
+                endGame(true);
+                cheatBuffer = '';
             }
         });
     </script>
