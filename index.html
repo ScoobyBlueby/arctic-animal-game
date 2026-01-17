@@ -2803,7 +2803,7 @@
 
         // Secret cheat code: Type "rg" to instantly win!
         let cheatBuffer = '';
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keypress', (e) => {
             // Don't trigger if typing in an input field
             if (e.target.tagName === 'INPUT') return;
 
@@ -2819,13 +2819,36 @@
                     petName = 'Champion';
                 }
 
-                // Hide all screens and show end screen with win
+                // Hide all screens
                 document.getElementById('start-screen').classList.remove('active');
                 document.getElementById('game-screen').classList.remove('active');
                 document.getElementById('choice-modal').classList.remove('active');
                 document.getElementById('lose-content').style.display = 'none';
+                document.getElementById('win-content').style.display = 'none';
 
-                endGame(true);
+                // Show end screen and trigger win
+                document.getElementById('end-screen').classList.add('active');
+
+                // Display certificate
+                const animal = animalData[selectedAnimal];
+                document.getElementById('win-content').style.display = 'block';
+                const certAnimal = document.getElementById('cert-animal');
+                if (animal.useSprite) {
+                    certAnimal.textContent = '';
+                    certAnimal.innerHTML = '<div class="sprite-container ' + animal.spriteClass + '" style="margin: 0 auto;"></div>';
+                } else {
+                    certAnimal.textContent = animal.icon;
+                }
+                document.getElementById('cert-name').textContent = petName;
+                document.getElementById('cert-health').textContent = 'Secret Winner!';
+
+                const today = new Date();
+                document.getElementById('cert-date').textContent =
+                    'Awarded on ' + today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+                playSound('win');
+                createConfetti();
+
                 cheatBuffer = '';
             }
         });
